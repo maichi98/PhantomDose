@@ -1,7 +1,7 @@
-from phandose import convert_nifti_segmentations_to_xyz
-from phandose import get_patient_characteristics
-from phandose import _get_phantom_lib_dataframe, _get_full_vertebrae_dataframe
-from phandose import _get_barycenter_dataframe
+from phandose.patient import convert_nifti_segmentations_to_xyz
+from phandose.patient import get_patient_characteristics
+from phandose.phantom.phantom import _get_phantom_lib_dataframe, _get_full_vertebrae_dataframe
+from phandose.phantom.phantom import _get_barycenter_dataframe
 import pandas as pd
 from pathlib import Path
 import platform
