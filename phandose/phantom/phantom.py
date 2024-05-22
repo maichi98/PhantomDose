@@ -29,66 +29,6 @@ def _get_phantom_lib_dataframe(path_phantom_lib: Path) -> pd.DataFrame:
     return df_phantom_lib
 
 
-def _get_full_vertebrae_dataframe(df_contours: pd.DataFrame) -> pd.DataFrame:
-    """
-    Create a DataFrame indicating if each vertebra is fully within the contours.
-
-    The function determines for each vertebra within the contours dataframe, whether it is fully
-    within the contours or not, based on its z-coordinates.
-
-    The DataFrame has two columns :
-        - ROIName : Name of the vertebra
-        - Full : Boolean indicating if the vertebra is fully within the contours
-
-    :param df_contours: pd.DataFrame, The DataFrame containing the contours of the patient, each row
-                        must contain the following columns : ['ROIName', 'z']
-
-    :return:pd.DataFrame, the Full Vertebrae DataFrame, with columns : ['ROIName', 'Full']
-    """
-
-    list_vertebrae = df_contours.loc[df_contours['ROIName'].str.startswith('vertebrae'), 'ROIName'].unique().tolist()
-    z_min, z_max = df_contours["z"].min(), df_contours["z"].max()
-
-    # Compute the vertebrae_min_z and vertebrae_max_z for all vertebrae :
-    vertebrae_z_min_max = df_contours.loc[df_contours['ROIName'].isin(list_vertebrae)] \
-        .groupby('ROIName')['z'].agg(['min', 'max'])
-
-    # Create a full vertebrae DataFrame :
-    dict_full_vertebrae = [{"ROIName": vertebrae, "Full": (row["min"] > z_min) and (row["max"] < z_max)}
-                           for vertebrae, row in vertebrae_z_min_max.iterrows()]
-
-    df_full_vertebrae = pd.DataFrame(dict_full_vertebrae)
-
-    return df_full_vertebrae
-
-
-def _get_barycenter_dataframe(df_contours: pd.DataFrame) -> pd.DataFrame:
-    """
-    Create a DataFrame containing the barycenter of each contour from df_contours dataframe.
-
-    The DataFrame has five columns :
-        - Organ : Name of the organ of the contour
-        - Rts :
-        - Barx : x-coordinate of the barycenter
-        - Bary : y-coordinate of the barycenter
-        - Barz : z-coordinate of the barycenter
-
-    :param df_contours: pd.DataFrame, The DataFrame containing the contours of the patient
-    :return: pd.DataFrame, The Barycenter DataFrame, with columns : ['Organ', 'Rts', 'Barx', 'Bary', 'Barz']
-    """
-
-    # Compute the barycenter of each contour :
-    df_barycenter = df_contours.groupby("ROIName")[["x", "y", "z"]].mean().reset_index()
-    df_barycenter["Rts"] = 'Patient_Contours'
-
-    df_barycenter = df_barycenter[["ROIName", "Rts", "x", "y", "z"]].rename(columns={"ROIName": "Organ",
-                                                                                     "x": "Barx",
-                                                                                     "y": "Bary",
-                                                                                     "z": "Barz"})
-
-    return df_barycenter
-
-
 def filter_phantoms(dir_phantom_lib: Path | str,
                     df_contours: pd.DataFrame,
                     df_patient_characteristics: pd.DataFrame) -> list[str]:
