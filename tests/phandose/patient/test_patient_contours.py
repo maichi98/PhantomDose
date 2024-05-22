@@ -1,5 +1,3 @@
-from pandas import DataFrame
-
 from phandose.patient import get_contours_barycenters
 
 import pandas as pd
@@ -47,4 +45,13 @@ class TestPatientContours(unittest.TestCase):
     def test_get_contours_barycenters_with_invalid_contours_dataframe(self):
 
         with self.assertRaises(ValueError):
-            df_result_barycenters: DataFrame = get_contours_barycenters(self.df_invalid_contours)
+            df_result_barycenters = get_contours_barycenters(self.df_invalid_contours)
+
+
+class TestIsVertebraeFullyWithinContours(unittest.TestCase):
+
+    pass
+
+
+if __name__ == '__main__':
+    unittest.main()
