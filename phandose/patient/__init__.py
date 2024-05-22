@@ -1,2 +1,3 @@
+from .patient_contours import get_contours_barycenters, is_vertebrae_fully_within_contours
 from .convert_segmentations_to_xyz import convert_nifti_segmentations_to_xyz
 from .patient_characteristics import get_patient_characteristics
