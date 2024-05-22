@@ -17,6 +17,10 @@ def get_contours_barycenters(df_contours: pd.DataFrame) -> pd.DataFrame:
     a pandas DataFrame with columns: ['ROIName', 'ROINumber', 'ROIContourNumber', 'x', 'y', 'z']
     """
 
+    # Check that there are no missing values in the DataFrame :
+    if df_contours[["x", "y", "z"]].isnull().values.any():
+        raise ValueError("The contours DataFrame shouldn't contain missing values in the columns 'x', 'y', 'z' !")
+
     # Compute the barycenter of each contour :
     df_barycenter = df_contours.groupby("ROIName")[["x", "y", "z"]].mean().reset_index()
     df_barycenter["Rts"] = 'Patient_Contours'
