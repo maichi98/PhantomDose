@@ -1,0 +1,8 @@
+numpy~=1.26.4
+pandas~=2.2.1
+scikit-image~=0.22.0
+nibabel~=5.2.1
+pydicom~=2.4.4
+opencv-python~=4.9.0.80
+scipy~=1.13.0
+shapely~=2.0.4
