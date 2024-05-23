@@ -92,7 +92,7 @@ def convert_nifti_segmentation_file_to_contours_dataframe(path_segmentation_file
 
     # Load the header, and the 3D matrix of the segmentation :
     nii_segmentation = nib.load(path_segmentation_file)
-    header_segmentation = nii_segmentation.header
+    affine_segmentation = nii_segmentation.affine
     data_segmentation = nii_segmentation.get_fdata()
 
     # Initialize a counter for the number of contours :
@@ -110,11 +110,12 @@ def convert_nifti_segmentation_file_to_contours_dataframe(path_segmentation_file
             contour_number += 1
 
             df_contour = pd.DataFrame(contour, columns=["x", "y"])
+            df_contour["z"] = slice_number
 
             # Adjust the x, y and z coordinates based on the header information :
-            df_contour["x"] -= header_segmentation["qoffset_x"]
-            df_contour["y"] += header_segmentation["qoffset_y"]
-            df_contour["z"] = (slice_number * header_segmentation["pixdim"][3]) + header_segmentation["qoffset_z"]
+            df_contour["ones"] = 1
+            df_contour[["x", "y", "z", "ones"]] = np.dot(affine_segmentation, df_contour[["x", "y", "z", "ones"]].T).T
+            df_contour.drop(columns=["ones"], inplace=True)
 
             # Add additional information about the ROI :
             df_contour["ROIContourPointNumber"] = 1 + np.arange(len(df_contour))
