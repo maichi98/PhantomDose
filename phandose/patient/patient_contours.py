@@ -57,6 +57,10 @@ def is_vertebrae_fully_within_contours(df_contours: pd.DataFrame) -> pd.DataFram
         The Full Vertebrae DataFrame, with columns : ['ROIName', 'Full']
     """
 
+    # Check that there are no missing values in the DataFrame :
+    if df_contours[["x", "y", "z"]].isnull().values.any():
+        raise ValueError("The contours DataFrame shouldn't contain missing values in the columns 'x', 'y', 'z' !")
+
     list_vertebrae = df_contours.loc[df_contours['ROIName'].str.startswith('vertebrae'), 'ROIName'].unique().tolist()
     z_min, z_max = df_contours["z"].min(), df_contours["z"].max()
 
@@ -68,6 +72,6 @@ def is_vertebrae_fully_within_contours(df_contours: pd.DataFrame) -> pd.DataFram
     dict_full_vertebrae = [{"ROIName": vertebrae, "Full": (row["min"] > z_min) and (row["max"] < z_max)}
                            for vertebrae, row in vertebrae_z_min_max.iterrows()]
 
-    df_full_vertebrae = pd.DataFrame(dict_full_vertebrae)
+    df_full_vertebrae = pd.DataFrame(dict_full_vertebrae, columns=["ROIName", "Full"])
 
     return df_full_vertebrae
