@@ -85,5 +85,5 @@ def calculate_contour_area(df_contours: pd.DataFrame) -> pd.DataFrame:
 
     cols = ['z', 'ROINumber', 'ROIContourNumber']
     df_area = df_contours.groupby(cols).apply(calculate_area).reset_index()
-    df_area['ROIName'] = df_contours['ROIName'].groupby(cols).first().reset_index(drop=True)
+    df_area['ROIName'] = df_contours.groupby(cols)['ROIName'].first().reset_index(drop=True)
     return df_area[['Centrex', 'Centrey', 'z', 'ROIName', 'ROINumber', 'ROIContourNumber', 'area']]
