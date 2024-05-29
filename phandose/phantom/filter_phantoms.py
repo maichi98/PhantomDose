@@ -186,3 +186,7 @@ class PhantomFilter:
 
         self._df_phantom_lib["Thinner"] = self._df_phantom_lib.groupby("Phantom").swifter.apply(is_phantom_not_too_big)
         self._df_phantom_lib = self._df_phantom_lib.loc[self._df_phantom_lib["Thinner"]]
+
+    @property
+    def df_phantom_lib(self):
+        return self._df_phantom_lib
