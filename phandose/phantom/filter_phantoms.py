@@ -46,6 +46,7 @@ class PhantomFilter:
         Filters the phantom library based on the patient's weight.
 
     """
+
     def __init__(self,
                  df_contours: pd.DataFrame,
                  df_patient_characteristics: pd.DataFrame):
@@ -101,14 +102,14 @@ class PhantomFilter:
         try:
             patient_info = self._df_patient_characteristics.loc[
                 self._df_patient_characteristics["Type"] == "CT_TO_TOTALSEGMENTATOR"
-            ].iloc[0]
+                ].iloc[0]
 
             sex, position = patient_info['PatientSex'], patient_info['PatientPosition']
 
             self._df_phantom_lib = self._df_phantom_lib.loc[
                 (self._df_phantom_lib["Sex"] == sex) &
                 (self._df_phantom_lib["Position"] == position)
-            ]
+                ]
         except IndexError:
             self._df_phantom_lib = pd.DataFrame(columns=self._df_phantom_lib.columns)
 
@@ -129,14 +130,14 @@ class PhantomFilter:
 
         else:
             # filter the phantom library based on size :
-            list_phantoms = self._df_phantom_lib["Phantom"].tolist().unique()
+            list_phantoms = self._df_phantom_lib["Phantom"].unique().tolist()
 
             list_vertebrae = {
-                'vertebrae T1', 'vertebrae T2', 'vertebrae T3', 'vertebrae T4', 'vertebrae T5',
-                'vertebrae T6', 'vertebrae T7', 'vertebrae T8', 'vertebrae T9', 'vertebrae T10',
-                'vertebrae T11', 'vertebrae T12',
-                'vertebrae C1', 'vertebrae C2', 'vertebrae C3', 'vertebrae C4', 'vertebrae C5',
-                'vertebrae C6', 'vertebrae C7',
+                'vertebrae C1', 'vertebrae C2', 'vertebrae C3', 'vertebrae C4',
+                'vertebrae C5', 'vertebrae C6', 'vertebrae C7',
+                'vertebrae T1', 'vertebrae T2', 'vertebrae T3', 'vertebrae T4',
+                'vertebrae T5', 'vertebrae T6', 'vertebrae T7', 'vertebrae T8',
+                'vertebrae T9', 'vertebrae T10', 'vertebrae T11', 'vertebrae T12',
                 'vertebrae L1', 'vertebrae L2', 'vertebrae L3', 'vertebrae L4', 'vertebrae L5',
                 'vertebrae S1'
             }
@@ -145,7 +146,7 @@ class PhantomFilter:
 
                 df_phantom = self._phantom_lib.get_phantom(phantom_name)
 
-                if list_vertebrae.issubset(df_phantom["ROIName"].str.startswith("vertebrae").unique()):
+                if list_vertebrae.issubset(df_phantom["ROIName"].unique().tolist()):
                     phantom_z_max = df_phantom.loc[df_phantom["ROIName"].isin(self._list_full_vertebrae), "z"].max()
                     phantom_z_min = df_phantom.loc[df_phantom["ROIName"].isin(self._list_full_vertebrae), "z"].min()
                     phantom_size = phantom_z_max - phantom_z_min
@@ -156,7 +157,7 @@ class PhantomFilter:
             self._df_phantom_lib = self._df_phantom_lib.loc[
                 (self._df_phantom_lib["SizeRatio"] != -1) &
                 (self._df_phantom_lib["SizeRatio"] <= 10)
-            ]
+                ]
 
     def filter_by_weight(self):
         """
@@ -164,27 +165,35 @@ class PhantomFilter:
         """
 
         # Filter the phantom library based on the patient's weight :
+        min_full_vertebrae_z = self._df_contours.loc[
+            self._df_contours["ROIName"].isin(self._list_full_vertebrae),
+            "z"
+        ].min()
+
         df_last_full_vertebrae = self._df_contours.loc[
             (self._df_contours['ROIName'] == 'body trunc') &
-            (self._df_contours["z"] == self._df_contours["ROIName"].isin(self._list_full_vertebrae)["z"].min())
-        ]
+            (self._df_contours["z"] == min_full_vertebrae_z)
+            ]
 
         patient_center = df_last_full_vertebrae[["x", "y"]].to_numpy().astype(np.int32)
         patient_xul, patient_yul, patient_wr, patient_hr = cv2.boundingRect(patient_center)
 
         def is_phantom_not_too_big(df_phantom):
-
             df_phantom_last_full_vertebrae = df_phantom.loc[
                 (df_phantom['ROIName'] == 'body trunc') &
-                (df_phantom['z'] == df_phantom['ROIName'].isin(self._list_full_vertebrae)['z'].min())
-            ]
+                (df_phantom['z'] == df_phantom.loc[df_phantom['ROIName'].isin(self._list_full_vertebrae)]['z'].min())
+                ]
 
             phantom_center = df_phantom_last_full_vertebrae[['x', 'y']].to_numpy().astype(np.int32)
             phantom_xul, phantom_yul, phantom_wr, phantom_hr = cv2.boundingRect(phantom_center)
 
             return patient_wr >= (phantom_wr - 25) and patient_hr >= (phantom_hr - 25)
 
-        self._df_phantom_lib["Thinner"] = self._df_phantom_lib.groupby("Phantom").swifter.apply(is_phantom_not_too_big)
+        for phantom_name in self._df_phantom_lib["Phantom"].unique():
+            _df_phantom = self._phantom_lib.get_phantom(phantom_name)
+            self._df_phantom_lib.loc[self._df_phantom_lib["Phantom"] == phantom_name,
+                                     "Thinner"] = is_phantom_not_too_big(_df_phantom)
+
         self._df_phantom_lib = self._df_phantom_lib.loc[self._df_phantom_lib["Thinner"]]
 
     @property
