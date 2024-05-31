@@ -84,5 +84,29 @@ class TestFilterBySexAndPosition(unittest.TestCase):
         assert_frame_equal(phantom_filter.df_phantom_lib, pd.DataFrame(columns=["Phantom", "Position", "Sex"]))
 
 
+class TestPhantomFilter(unittest.TestCase):
+
+    def test_no_errors_when_running_filter_pipeline_under_normal_circumstances(self):
+        dir_patient = Path(__file__).resolve().parents[3] / 'sample_data' / 'AGORL_P33'
+
+        dir_ct, dir_petct = dir_patient / 'CT_TO_TOTALSEGMENTATOR', dir_patient / 'PET_TO_TOTALSEGMENTATOR'
+        df_patient_characteristics = get_patient_characteristics(dir_ct, dir_petct)
+
+        dir_segmentations = dir_patient / "NIFTI_FROM_CT"
+        df_contours = convert_nifti_segmentation_directory_to_contours_dataframe(dir_segmentations)
+
+        phantom_filter = PhantomFilter(df_contours, df_patient_characteristics)
+        print("Number of phantoms before filtering: ", len(phantom_filter.df_phantom_lib))
+
+        phantom_filter.filter_by_sex_and_position()
+        print("Number of phantoms after filtering by sex and position: ", len(phantom_filter.df_phantom_lib))
+
+        phantom_filter.filter_by_size()
+        print("Number of phantoms after filtering by size: ", len(phantom_filter.df_phantom_lib))
+
+        phantom_filter.filter_by_weight()
+        print("Number of phantoms after filtering by weight: ", len(phantom_filter.df_phantom_lib))
+
+
 if __name__ == '__main__':
     unittest.main()
