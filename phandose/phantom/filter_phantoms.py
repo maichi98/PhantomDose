@@ -4,6 +4,7 @@ from phandose import constants
 
 import pandas as pd
 import numpy as np
+import swifter
 import cv2
 
 
@@ -178,7 +179,10 @@ class PhantomFilter:
         patient_center = df_last_full_vertebrae[["x", "y"]].to_numpy().astype(np.int32)
         patient_xul, patient_yul, patient_wr, patient_hr = cv2.boundingRect(patient_center)
 
-        def is_phantom_not_too_big(df_phantom):
+        def is_phantom_not_too_big(phantom_name):
+
+            df_phantom = self._phantom_lib.get_phantom(phantom_name)
+
             df_phantom_last_full_vertebrae = df_phantom.loc[
                 (df_phantom['ROIName'] == 'body trunc') &
                 (df_phantom['z'] == df_phantom.loc[df_phantom['ROIName'].isin(self._list_full_vertebrae)]['z'].min())
@@ -189,10 +193,8 @@ class PhantomFilter:
 
             return patient_wr >= (phantom_wr - 25) and patient_hr >= (phantom_hr - 25)
 
-        for phantom_name in self._df_phantom_lib["Phantom"].unique():
-            _df_phantom = self._phantom_lib.get_phantom(phantom_name)
-            self._df_phantom_lib.loc[self._df_phantom_lib["Phantom"] == phantom_name,
-                                     "Thinner"] = is_phantom_not_too_big(_df_phantom)
+        self._df_phantom_lib[
+            "Thinner"] = self._df_phantom_lib["Phantom"].swifter.progress_bar(False).apply(is_phantom_not_too_big)
 
         self._df_phantom_lib = self._df_phantom_lib.loc[self._df_phantom_lib["Thinner"]]
 
