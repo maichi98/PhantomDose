@@ -1,8 +1,9 @@
 import sys
-sys.path.append("B:/02-Developpement/13-gustaveroussy/02-mohammed_axel/PhantomDose/")
-from phandose.patient import get_patient_characteristics
-from phandose.patient import convert_nifti_segmentations_to_xyz
-from phandose.phantom import filter_phantoms
+sys.path.append("C:/Users/axelb/Documents/01-developpement/04-phandose-version/Phandose_back/PhantomDose")
+from phandose.patient.patient_characteristics import get_patient_characteristics
+from phandose.patient.segmentations_to_coordinates import convert_nifti_segmentation_directory_to_contours_dataframe as convert_nivti
+from phandose.phantom.filter_phantoms import PhantomFilter
+from phandose.phantom.phantom import create_phantom
 
 import pandas as pd
 from pathlib import Path
@@ -10,8 +11,37 @@ import platform
 
 
 def main():
+    """
+    Launches the Phandose project with backend adjustments.
+
+    This function initializes and configures the backend for the Phandose project,
+    performing the necessary adjustments. It ensures that all dependencies are loaded,
+    configurations are correct, and the backend server is ready to run.
+
+    Steps performed by this function:
+    
+    1. Create patient characteristics...
+    2. Convert NIFTI segmentations to XYZ...
+    3. Filter phantoms...
+    4. Create phantom library..
+    5. Create full vertebrae...
+ 
+
+    Example:
+        >>> main()
+        Create patient characteristics of AGORL_33...
+        Convert NIFTI segmentations to XYZ...
+        Filter phantoms who have same AGORL_33 charachterists ...
+        Create phantom library..
+        Create full vertebrae...
+
+    Note:
+        Make sure all required dependencies are installed before running this function.
+        Use a virtual environment to avoid dependency conflicts.
+
+    """
     if platform.system() == "Windows":
-        dir_project = Path(fr"B:/02-Developpement/13-gustaveroussy/02-mohammed_axel/")
+        dir_project = Path("C:/Users/axelb/Documents/01-developpement/04-phandose-version/Phandose_back")
     else:
         dir_project = Path("/home/maichi/work/My Projects/PhanDose")
 
@@ -33,13 +63,17 @@ def main():
 
     print("Convert NIFTI segmentations to XYZ...")
     dir_nifti_segmentations = dir_patient / "NIFTI_FROM_CT"
-    df_contours = convert_nifti_segmentations_to_xyz(dir_nifti_segmentations)
+    df_contours = convert_nivti(dir_nifti_segmentations)
     df_contours.to_csv(dir_save / "contours.csv", sep=";", index=False)
 
-    print("Filter phantoms...")
+    # print("Filter phantoms...")
+    # df_phantom_lib = PhantomFilter(df_contours, df_patient_characteristics)
+    # print(df_phantom_lib.filter())
+    # df_phantom_lib.to_csv(dir_save / "phantom_lib.csv", sep=";", index=False)
+
     print("Create phantom library...")
-    df_phantom_lib = filter_phantoms(dir_phantom_lib,  df_contours, df_patient_characteristics)
-    df_phantom_lib.to_csv(dir_save / "phantom_lib.csv", sep=";", index=False)
+    phantom_selected = "C:/Users/axelb/Documents/01-developpement/04-phandose-version/Phandose_back/PhantomDose/PhantomLib/_HFS_M_ 201709084NS_.txt"
+    create_phantom(phantom_selected, df_contours, df_patient_characteristics)
 
 
 if __name__ == '__main__':
