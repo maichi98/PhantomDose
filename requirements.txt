@@ -6,3 +6,5 @@ pydicom~=2.4.4
 opencv-python~=4.9.0.80
 scipy~=1.13.0
 shapely~=2.0.4
+pyarrow>=14.0.1
+swifter~=1.4.0
