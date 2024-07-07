@@ -10,7 +10,7 @@ class PhantomLibrary:
 
     Attributes
     ----------
-    _dir_phantom_lib : Path
+    _dir_phantom_lib : (Path)
         a Path object that represents the directory of the Phantom Library
 
     Methods
