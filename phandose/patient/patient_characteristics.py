@@ -1,8 +1,14 @@
+from phandose import utils
+
 from datetime import datetime
 from pathlib import Path
 import pydicom as dcm
 import pandas as pd
 import numpy as np
+import logging
+
+# Set the logger
+logger = utils.get_logger("patient")
 
 
 def get_patient_characteristics(*list_path_imaging: Path | str) -> pd.DataFrame:
