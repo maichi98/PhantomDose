@@ -1,14 +1,7 @@
-from phandose import utils
-
-from datetime import datetime
 from pathlib import Path
 import pydicom as dcm
 import pandas as pd
 import numpy as np
-import logging
-
-# Set the logger
-logger = utils.get_logger("patient")
 
 
 def get_patient_characteristics(*list_path_imaging: Path | str) -> pd.DataFrame:
@@ -56,11 +49,11 @@ def get_patient_characteristics(*list_path_imaging: Path | str) -> pd.DataFrame:
         'Type': str,
         'PatientID': str,
         'CodeMeaning': str,
-        'AcquisitionDate': 'datetime64[ns]',
+        'AcquisitionDate': str,
         'DataCollectionDiameter': float,
         'ReconstructionDiameter': float,
         'PatientPosition': str,
-        'PatientBirthDate': 'datetime64[ns]',
+        'PatientBirthDate': str,
         'PatientSex': str,
         'PatientSize': float,
         'PatientWeight': float
@@ -110,10 +103,6 @@ def get_patient_characteristics(*list_path_imaging: Path | str) -> pd.DataFrame:
             if attr == 'ProcedureCodeSequence':
                 value = value[0].CodeMeaning if not pd.isna(value) else np.nan
                 dict_patient_data['CodeMeaning'] = value
-
-            elif attr in ['AcquisitionDate', 'PatientBirthDate']:
-                value = datetime.strptime(value, "%Y%m%d") if not pd.isna(value) else np.nan
-                dict_patient_data[attr] = value
 
             else:
                 dict_patient_data[attr] = value
