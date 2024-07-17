@@ -7,10 +7,10 @@ class Modality(ABC):
 
     Attributes:
     -----------
-    series_instance_uid : str
+    series_instance_uid : (str)
         Series Instance UID.
 
-    series_description : str, optional
+    series_description : (str), optional
         Series Description.
 
     Methods:
@@ -27,6 +27,14 @@ class Modality(ABC):
                  series_description: str = None):
         """
         Constructor of the class Modality.
+
+        Parameters:
+        -----------
+        series_instance_uid : (str)
+            Series Instance UID.
+
+        series_description : (str), optional
+            Series Description.
         """
 
         self._series_instance_uid = series_instance_uid

@@ -10,13 +10,13 @@ class CTScanModality(Modality):
 
     Attributes:
     -----------
-    series_instance_uid : str
+    series_instance_uid : (str)
         Series Instance UID.
 
-    list_path_slices : list[Path]
+    list_path_slices : (list[Path])
         List of paths to the slices of the CT Scan.
 
-    series_description : str, optional
+    series_description : (str), optional
         Series Description.
 
     Methods:
@@ -35,6 +35,17 @@ class CTScanModality(Modality):
 
         """
         Constructor of the class CTScanModality.
+
+        Parameters:
+        -----------
+        series_instance_uid : (str)
+            Series Instance UID.
+
+        list_path_slices : (list[Path])
+            List of paths to the slices of the CT Scan.
+
+        series_description : (str), optional
+            Series Description.
         """
 
         super().__init__(series_instance_uid, series_description)
