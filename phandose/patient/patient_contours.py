@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def get_contours_barycenters(df_contours: pd.DataFrame) -> pd.DataFrame:
@@ -75,3 +76,52 @@ def is_vertebrae_fully_within_contours(df_contours: pd.DataFrame) -> pd.DataFram
     df_full_vertebrae = pd.DataFrame(dict_full_vertebrae, columns=["ROIName", "Full"])
 
     return df_full_vertebrae
+
+
+def get_mean_organ_spacing_z(df_barycenter: pd.DataFrame) -> float:
+    """
+    Get the mean spacing between two consecutive organs along the z-axis.
+
+    Returns
+    -------
+    float
+        The average spacing between two consecutive organs along the z-axis.
+    """
+
+    # Get along the z-axis the mean distance between two consecutive organs :
+    list_organ_z = sorted(df_barycenter["Barz"].unique().tolist())
+    list_spacing_z = np.diff(list_organ_z)
+
+    return list_spacing_z.mean()
+
+
+def needed_top_part(df_contours: pd.DataFrame) -> bool:
+    """
+    Check if the junction is the top junction of the phantom.
+
+    Returns
+    -------
+    bool
+        True if the junction is the top junction of the phantom, False otherwise.
+    """
+
+    # If the skull is present in the contours, the junction is the top junction if the skull is the highest organ :
+    if "skull" in df_contours["ROIName"].unique():
+
+        skull_z_max = df_contours.loc[df_contours["ROIName"] == "skull", "z"].max()
+        return skull_z_max == df_contours["z"].max()
+
+    return True
+
+
+def needed_bottom_part(df_contours: pd.DataFrame) -> bool:
+    """
+    Check if the junction is the bottom junction of the phantom.
+
+    Returns
+    -------
+    bool
+        True if the junction is the bottom junction of the phantom, False otherwise.
+    """
+
+    return not {'femur left', 'femur right'}.issubset(df_contours["ROIName"].unique())
