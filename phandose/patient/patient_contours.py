@@ -95,7 +95,7 @@ def get_mean_organ_spacing_z(df_barycenter: pd.DataFrame) -> float:
     return list_spacing_z.mean()
 
 
-def needed_top_part(df_contours: pd.DataFrame) -> bool:
+def is_top_extension_warranted(df_contours: pd.DataFrame) -> bool:
     """
     Check if the junction is the top junction of the phantom.
 
@@ -114,7 +114,7 @@ def needed_top_part(df_contours: pd.DataFrame) -> bool:
     return True
 
 
-def needed_bottom_part(df_contours: pd.DataFrame) -> bool:
+def is_bottom_extension_warranted(df_contours: pd.DataFrame) -> bool:
     """
     Check if the junction is the bottom junction of the phantom.
 
