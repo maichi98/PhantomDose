@@ -1,2 +1,1 @@
-from .phantom import filter_phantoms
-from .phantom import create_phantom
+from .phantom_library import PhantomLibrary
